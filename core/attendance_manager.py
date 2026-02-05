@@ -64,36 +64,43 @@ def _is_time_in_range(time_to_check: Optional[datetime.time], class_start: Optio
     return class_start <= time_to_check <= class_end
 
 
+
 def determine_status(time_in: str, class_start_time: str, class_end_time: str, class_start_grace_minutes: int = 5) -> str:
     """
-    Determine attendance status based on Time_In and class schedule.
-    Returns: "Present" | "Late" | "Absent"
+    Determine attendance status based on TimeIn and class schedule.
+    Returns only: "Present" or "Late" (we no longer use "Absent").
+    - Missing or unparsable TimeIn -> "Late"
+    - Within grace period -> "Present"
+    - After grace (including after class end) -> "Late"
     """
-    if not time_in or not time_in.strip():
-        return "Absent"
-    
     try:
+        # Treat missing/empty time as Late (Absent removed)
+        if not time_in or not time_in.strip():
+            return "Late"
+
         time_in_parsed = _parse_time(time_in)
         class_start_parsed = _parse_time(class_start_time)
         class_end_parsed = _parse_time(class_end_time)
-        
+
+        # If any time couldn't be parsed, consider Late
         if not all([time_in_parsed, class_start_parsed, class_end_parsed]):
-            return "Absent"
-        
-        # If checked in after class end -> Absent
+            return "Late"
+
+        # If checked in after class end -> Late
         if time_in_parsed > class_end_parsed:
-            return "Absent"
-        
+            return "Late"
+
+        # Grace period calculation
         grace_end = datetime.combine(datetime.today(), class_start_parsed) + timedelta(minutes=class_start_grace_minutes)
         grace_end_time = grace_end.time()
-        
+
         if time_in_parsed <= grace_end_time:
             return "Present"
         else:
             return "Late"
     except Exception as e:
         print(f"Error determining status: {e}")
-        return "Absent"
+        return "Late"
 
 
 def update_statuses(class_start_time: str, class_end_time: str, class_start_grace_minutes: int = 15) -> Dict[str, Any]:
@@ -143,10 +150,26 @@ def sync_students_data(class_start_time: Optional[str] = None, class_end_time: s
     """
     Convenience wrapper that recomputes statuses for all rows.
     If class_start_time is not provided, attempt to read from persisted settings.
+    Also compute class_end_time from class_start_time + duration (settings) when possible.
     """
+    # resolve class_start_time from persisted settings when not provided
     if not class_start_time:
         s = read_settings()
         class_start_time = s.get("class_start_time") or "08:00 AM"
+
+    # attempt to compute class_end_time based on duration stored in settings if class_start_time is valid
+    try:
+        # only compute when we have a parsable start time
+        cs_parsed_dt = datetime.strptime(class_start_time, "%I:%M %p")
+        # prefer duration from settings, fallback to 60 minutes
+        s = read_settings()
+        duration_min = int(s.get("class_duration_minutes", 60))
+        computed_end_dt = cs_parsed_dt + timedelta(minutes=duration_min)
+        class_end_time = computed_end_dt.strftime("%I:%M %p")
+    except Exception:
+        # leave provided/ default class_end_time unchanged if parsing fails
+        pass
+
     return update_statuses(class_start_time, class_end_time, class_start_grace_minutes)
 
 

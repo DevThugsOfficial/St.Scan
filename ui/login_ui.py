@@ -7,9 +7,9 @@ TEXT_DARK = "#121212"
 MAROON = "#7B0C0C"
 
 # Enhanced visibility colors
-LIGHT_BORDER = "#D1D1D1"        # More visible border
-INPUT_BORDER = "#E3E3E3"        # Subtle input outline
-SHADOW_SOFT = "#00000026"       # Slightly stronger shadow
+LIGHT_BORDER = "#D1D1D1"
+INPUT_BORDER = "#E3E3E3"
+SHADOW_SOFT = "#00000026"
 WHITE = "#FFFFFF"
 BLUE = "#1976D2"
 
@@ -19,11 +19,17 @@ def login_card(page: ft.Page, *, on_signup, on_forgot, on_login) -> ft.Container
         hint_text="username",
         bgcolor=BG_LIGHT,
         border_radius=12,
-        border_color=INPUT_BORDER,   # changed from transparent
+        border_color=INPUT_BORDER,
         content_padding=12,
         width=260,
-        text_style=ft.TextStyle(font_family="Port Lligat Slab", color=TEXT_DARK),
-        hint_style=ft.TextStyle(font_family="Port Lligat Slab", color="#99000000"),
+        text_style=ft.TextStyle(
+            font_family="Port Lligat Slab",
+            color=TEXT_DARK
+        ),
+        hint_style=ft.TextStyle(
+            font_family="Port Lligat Slab",
+            color="#99000000"
+        ),
     )
 
     password = ft.TextField(
@@ -32,28 +38,30 @@ def login_card(page: ft.Page, *, on_signup, on_forgot, on_login) -> ft.Container
         can_reveal_password=True,
         bgcolor=BG_LIGHT,
         border_radius=12,
-        border_color=INPUT_BORDER,   # changed from transparent
+        border_color=INPUT_BORDER,
         content_padding=12,
         width=260,
-        text_style=ft.TextStyle(font_family="Port Lligat Slab", color=TEXT_DARK),
-        hint_style=ft.TextStyle(font_family="Port Lligat Slab", color="#99000000"),
+        text_style=ft.TextStyle(
+            font_family="Port Lligat Slab",
+            color=TEXT_DARK
+        ),
+        hint_style=ft.TextStyle(
+            font_family="Port Lligat Slab",
+            color="#99000000"
+        ),
     )
 
     return ft.Container(
         width=360,
         padding=30,
         bgcolor=CARD_BG,
-
-        # Card enhancement
-        border_radius=16,   # smoother card rounding
-        border=ft.border.all(1, LIGHT_BORDER),   # visible card stroke
-
+        border_radius=16,
+        border=ft.border.all(1, LIGHT_BORDER),
         shadow=ft.BoxShadow(
             blur_radius=28,
             color=SHADOW_SOFT,
             offset=ft.Offset(0, 8),
         ),
-
         content=ft.Column(
             [
                 ft.Image(src="stc.png", width=200, height=200),
@@ -63,7 +71,7 @@ def login_card(page: ft.Page, *, on_signup, on_forgot, on_login) -> ft.Container
                     size=24,
                     weight=ft.FontWeight.BOLD,
                     color=TEXT_DARK,
-                    font_family="Port Lligat Slab"
+                    font_family="Port Lligat Slab",
                 ),
 
                 ft.Container(height=10),
@@ -71,17 +79,16 @@ def login_card(page: ft.Page, *, on_signup, on_forgot, on_login) -> ft.Container
                 ft.Container(height=10),
                 password,
 
+                # Forgot password button (FIXED)
                 ft.Container(
                     ft.TextButton(
-                        "forgot password?",
-                        style=ft.ButtonStyle(
-                            text_style=ft.TextStyle(
-                                size=15,
-                                font_family="Port Lligat Slab",
-                                color=BLUE
-                            )
+                        content=ft.Text(
+                            "forgot password?",
+                            size=15,
+                            font_family="Port Lligat Slab",
+                            color=BLUE,
                         ),
-                        on_click=on_forgot
+                        on_click=on_forgot,
                     ),
                     alignment=ft.alignment.center_right,
                     width=260,
@@ -98,21 +105,20 @@ def login_card(page: ft.Page, *, on_signup, on_forgot, on_login) -> ft.Container
                     on_click=lambda e: on_login(e, username, password),
                     style=ft.ButtonStyle(
                         shape=ft.RoundedRectangleBorder(radius=22)
-                    )
+                    ),
                 ),
 
                 ft.Container(height=15),
 
+                # Signup button (FIXED)
                 ft.TextButton(
-                    "Don't have an account?",
-                    style=ft.ButtonStyle(
-                        text_style=ft.TextStyle(
-                            size=15,
-                            font_family="Port Lligat Slab",
-                            color=BLUE
-                        )
+                    content=ft.Text(
+                        "Don't have an account?",
+                        size=15,
+                        font_family="Port Lligat Slab",
+                        color=BLUE,
                     ),
-                    on_click=on_signup
+                    on_click=on_signup,
                 ),
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
